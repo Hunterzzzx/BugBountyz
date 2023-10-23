@@ -35,8 +35,8 @@ jobs:
     - name: Send Nuclei Results to Telegram
       uses: appleboy/telegram-action@v0.0.5
       with:
-        to: ${{ secrets.TELEGRAM_CHAT_ID }}
-        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        to: ${{ secrets.Hddykeisx_bot }}
+        token: ${{ secrets.6410502940:AAEDKnie7shfsE19CSFaA2Zs0sSlqhuipMo}}
         message: |
           Nuclei scan completed! Here are the results:
           $(cat nuclei_results.txt)

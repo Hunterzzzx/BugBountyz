@@ -17,6 +17,9 @@ jobs:
         run: |
           go version
           go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest    
-          
+      - name: Create File
+      - run: |
+          nano scope.txt  
       - name: Run Subfinder
         run: subfinder -silent -dL scope.txt -o subfinder.txt
+      

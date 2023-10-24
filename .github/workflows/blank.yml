@@ -1,0 +1,42 @@
+name: Recon and Nuclei Scan
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  recon-and-nuclei:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.16
+
+    - name: Install Subfinder
+      run: go get -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder
+
+    - name: Run Subfinder
+      run: |
+        subfinder -dL targets.txt -o subfinder_results.txt
+
+    - name: Install Nuclei
+      run: go get -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei
+
+    - name: Run Nuclei Scan with Subfinder Results
+      run: |
+        nuclei -l subfinder_results.txt -t /path/to/nuclei-templates -o nuclei_results.txt
+
+    - name: Send Nuclei Results to Telegram
+      uses: appleboy/telegram-action@v0.0.5
+      with:
+        to: ${{ secrets.TELEGRAM_CHAT_ID }}
+        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        message: |
+          Nuclei scan completed! Here are the results:
+          $(cat nuclei_results.txt)

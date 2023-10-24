@@ -1,0 +1,61 @@
+name: Recon Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  recon_job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Download Subfinder, Nuclei, and Waybackurls
+      run: |
+        # Download Subfinder, Nuclei, and Waybackurls
+        wget https://github.com/projectdiscovery/subfinder/releases/download/v2.6.0/subfinder-linux-amd64 -O subfinder
+        wget https://github.com/projectdiscovery/nuclei/releases/download/v2.6.0/nuclei-linux-amd64 -O nuclei
+        wget https://github.com/tomnomnom/waybackurls/releases/download/v2.1.0/waybackurls-linux-amd64 -O waybackurls
+
+        # Make the downloaded binaries executable
+        chmod +x subfinder nuclei waybackurls
+      working-directory: ${{ github.workspace }}
+
+    - name: Download Nuclei Templates
+      run: |
+        # Download Nuclei templates from the official repository
+        git clone https://github.com/projectdiscovery/nuclei-templates.git templates
+      working-directory: ${{ github.workspace }}
+
+    - name: Run Subfinder for Recon
+      run: |
+        # Run Subfinder with the desired options for recon
+        ./subfinder -d ibm.com -o subdomains.txt
+      working-directory: ${{ github.workspace }}
+
+    - name: Run Waybackurls
+      run: |
+        # Run Waybackurls with the necessary options
+        ./waybackurls -input=subdomains.txt -output=waybackurls.txt
+      working-directory: ${{ github.workspace }}
+
+    - name: Run Nuclei
+      run: |
+        # Run Nuclei with the downloaded templates and options
+        ./nuclei -l waybackurls.txt -t templates/ -o result-nuclei.txt
+      working-directory: ${{ github.workspace }}
+
+    - name: Send results to Telegram
+      run: |
+        # Replace this with the command to send results to Telegram
+        # You'll need a Telegram bot token and chat ID to send messages
+        telegram_bot_token="YOUR_BOT_TOKEN"
+        chat_id="YOUR_CHAT_ID"
+        message="Nuclei scan results are ready!"
+        curl -s -X POST "https://api.telegram.org/bot${6410502940:AAEDKnie7shfsE19CSFaA2Zs0sSlqhuipMo}/sendMessage" -d "chat_id=${-4085735392}" -d "text=${cat result-nuclei.txt}"
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.6410502940:AAEDKnie7shfsE19CSFaA2Zs0sSlqhuipMo }}
+        TELEGRAM_CHAT_ID: ${{ secrets.-4085735392 }}
